@@ -1,0 +1,19 @@
+Source: kibana3
+Section: contrib/web
+Priority: extra
+Maintainer: Rashid Khan <rashidkpc@github.com>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.3
+Homepage: https://github.com/elasticsearch/kibana3
+Vcs-Git: git://github.com/elasticsearch/kibana3.git
+
+Package: kibana3
+Architecture: all
+Depends: ${misc:Depends}
+Replaces: kibana-dashboard (<= 0.1a-6)
+Breaks: kibana-dashboard (<= 0.1a-6)
+Suggests: httpd
+Description: Web interface for Elasticsearch DataViz
+	Kibana dashboard is a highly scalable interface for Logstash and 
+	ElasticSearch that allows you to efficiently search, graph, 
+	analyze and otherwise make sense of a mountain of logs. 

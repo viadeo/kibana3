@@ -1,0 +1,7 @@
+common usr/share/kibana3/
+js usr/share/kibana3/
+panels usr/share/kibana3/
+partials usr/share/kibana3/
+*.js usr/share/kibana3/
+dashboards usr/share/kibana3/
+*.html usr/share/kibana3/
