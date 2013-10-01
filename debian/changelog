@@ -1,4 +1,4 @@
-kibana3 ($VERSION$-1) unstable; urgency=low
+kibana3 ({{VERSION}}-1) unstable; urgency=low
 
   * bugfix
 
