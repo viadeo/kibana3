@@ -30,10 +30,15 @@
       <button type="button" class="close" ng-click="dashAlerts.clear(alert)" style="padding-right:50px">&times;</button>
       <strong>{{alert.title}}</strong> <span ng-bind-html-unsafe='alert.text'></span> <div style="padding-right:10px" class='pull-right small'> {{$index + 1}} alert(s) </div>
     </div>
-    <div class="navbar navbar-static-top">
+    <div class="navbar navbar-static-top" bs-navbar>
       <div class="navbar-inner">
         <div class="container-fluid">
-          <span class="brand">{{dashboard.current.title}}</span>
+          <span class="brand"><img src="img/viadeo.png" /></span>
+            <ul class="nav navbar-nav">
+                <li data-match-route="/dashboard/file/Syslog.json"><a href="#/dashboard/file/Syslog.json">Syslog</a></li>
+                <li data-match-route="/dashboard/file/HttpAccess.json"><a href="#/dashboard/file/HttpAccess.json">HttpAccess</a></li>
+                <li data-match-route="/dashboard/file/ApplicationLog.json"><a href="#/dashboard/file/ApplicationLog.json">ApplicationLog</a></li>
+            </ul>
           <ul class="nav pull-right" ng-controller='dashLoader' ng-init="init()" ng-include="'app/partials/dashLoader.html'">
           </ul>
         </div>

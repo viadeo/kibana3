@@ -1,0 +1,286 @@
+{
+  "title": "ApplicationLog",
+  "services": {
+    "query": {
+      "idQueue": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "list": {
+        "1": {
+          "id": 1,
+          "color": "#EAB839",
+          "query": "_type:ApplicationLog",
+          "alias": "",
+          "pin": false,
+          "type": "lucene"
+        }
+      },
+      "ids": [
+        1
+      ]
+    },
+    "filter": {
+      "idQueue": [
+        2
+      ],
+      "list": {
+        "0": {
+          "from": "2013-10-01T07:26:41.359Z",
+          "to": "2013-10-01T13:26:41.359Z",
+          "field": "timestamp",
+          "type": "time",
+          "mandate": "must",
+          "active": true,
+          "alias": "",
+          "id": 0
+        }
+      },
+      "ids": [
+        0
+      ]
+    }
+  },
+  "rows": [
+    {
+      "title": "Intro",
+      "height": "120px",
+      "editable": true,
+      "collapse": false,
+      "collapsable": false,
+      "panels": [
+        {
+          "error": false,
+          "span": 7,
+          "editable": true,
+          "type": "query",
+          "label": "Search",
+          "query": "*",
+          "pinned": true,
+          "history": [
+            "_type:ApplicationLog",
+            "_type:HttpAccess",
+            "*",
+            "_type:Syslog",
+            "facility:*",
+            "facility:10",
+            "method:POST",
+            "",
+            "severity:6",
+            "message:session"
+          ],
+          "remember": 10,
+          "title": "Query"
+        },
+        {
+          "error": "",
+          "span": 5,
+          "editable": true,
+          "type": "timepicker",
+          "status": "Stable",
+          "mode": "relative",
+          "time_options": [
+            "5m",
+            "15m",
+            "1h",
+            "6h",
+            "12h",
+            "24h",
+            "2d",
+            "7d",
+            "30d"
+          ],
+          "timespan": "6h",
+          "timefield": "timestamp",
+          "timeformat": "",
+          "refresh": {
+            "enable": false,
+            "interval": 30,
+            "min": 3
+          },
+          "filter_id": 0,
+          "title": "Period"
+        }
+      ]
+    },
+    {
+      "title": "analytics",
+      "height": "150px",
+      "editable": true,
+      "collapse": false,
+      "collapsable": true,
+      "panels": [
+        {
+          "span": 7,
+          "editable": true,
+          "type": "histogram",
+          "loadingEditor": false,
+          "mode": "count",
+          "time_field": "timestamp",
+          "queries": {
+            "mode": "all",
+            "ids": [
+              1
+            ]
+          },
+          "value_field": null,
+          "auto_int": true,
+          "resolution": 100,
+          "interval": "5m",
+          "intervals": [
+            "auto",
+            "1s",
+            "1m",
+            "5m",
+            "10m",
+            "30m",
+            "1h",
+            "3h",
+            "12h",
+            "1d",
+            "1w",
+            "1M",
+            "1y"
+          ],
+          "fill": 0,
+          "linewidth": 3,
+          "timezone": "browser",
+          "spyable": true,
+          "zoomlinks": true,
+          "bars": false,
+          "stack": true,
+          "points": false,
+          "lines": true,
+          "legend": true,
+          "x-axis": true,
+          "y-axis": true,
+          "percentage": false,
+          "interactive": true,
+          "options": true,
+          "tooltip": {
+            "value_type": "cumulative",
+            "query_as_alias": false
+          },
+          "title": "time distribution"
+        },
+        {
+          "error": false,
+          "span": 5,
+          "editable": true,
+          "type": "terms",
+          "loadingEditor": false,
+          "queries": {
+            "mode": "all",
+            "ids": [
+              1
+            ]
+          },
+          "field": "hostname",
+          "exclude": [],
+          "missing": true,
+          "other": true,
+          "size": 5,
+          "order": "count",
+          "style": {
+            "font-size": "10pt"
+          },
+          "donut": false,
+          "tilt": false,
+          "labels": true,
+          "arrangement": "horizontal",
+          "chart": "bar",
+          "counter_pos": "below",
+          "spyable": true,
+          "title": "by host"
+        }
+      ]
+    },
+    {
+      "title": "hits",
+      "height": "150px",
+      "editable": true,
+      "collapse": false,
+      "collapsable": true,
+      "panels": [
+        {
+          "error": false,
+          "span": 3,
+          "editable": true,
+          "type": "filtering",
+          "loadingEditor": false,
+          "title": "Filters"
+        },
+        {
+          "error": false,
+          "span": 9,
+          "editable": true,
+          "type": "table",
+          "loadingEditor": false,
+          "status": "Stable",
+          "queries": {
+            "mode": "all",
+            "ids": [
+              1
+            ]
+          },
+          "size": 100,
+          "pages": 5,
+          "offset": 0,
+          "sort": [
+            "_score",
+            "desc"
+          ],
+          "group": "default",
+          "style": {
+            "font-size": "9pt"
+          },
+          "overflow": "min-height",
+          "fields": [
+            "timestamp",
+            "hostname",
+            "logger",
+            "mdc.correlationId",
+            "message",
+            "throwable"
+          ],
+          "highlight": [
+            "message"
+          ],
+          "sortable": true,
+          "header": true,
+          "paging": true,
+          "field_list": false,
+          "trimFactor": 700,
+          "normTimes": true,
+          "spyable": true,
+          "title": "hits"
+        }
+      ]
+    }
+  ],
+  "editable": true,
+  "index": {
+    "interval": "week",
+    "pattern": "[logs-]YYYY-W",
+    "default": "_all"
+  },
+  "style": "dark",
+  "failover": false,
+  "loader": {
+    "save_gist": false,
+    "save_elasticsearch": true,
+    "save_local": true,
+    "save_default": true,
+    "save_temp": true,
+    "save_temp_ttl_enable": true,
+    "save_temp_ttl": "30d",
+    "load_gist": true,
+    "load_elasticsearch": true,
+    "load_elasticsearch_size": 20,
+    "load_local": true,
+    "hide": false
+  },
+  "panel_hints": true
+}
