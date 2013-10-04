@@ -12,7 +12,7 @@
         "1": {
           "id": 1,
           "color": "#EAB839",
-          "query": "_type:HttpAccess",
+          "query": "",
           "alias": "",
           "pin": false,
           "type": "lucene"
@@ -23,23 +23,31 @@
       ]
     },
     "filter": {
-      "idQueue": [
-        2
-      ],
+      "idQueue": [],
       "list": {
         "0": {
-          "from": "2013-10-01T07:26:33.806Z",
-          "to": "2013-10-01T13:26:33.806Z",
+          "from": "2013-09-27T15:51:13.450Z",
+          "to": "2013-10-04T15:51:13.450Z",
           "field": "timestamp",
           "type": "time",
           "mandate": "must",
           "active": true,
           "alias": "",
           "id": 0
+        },
+        "2": {
+          "type": "field",
+          "field": "_type",
+          "query": "HttpAccess",
+          "mandate": "must",
+          "active": true,
+          "alias": "",
+          "id": 2
         }
       },
       "ids": [
-        0
+        0,
+        2
       ]
     }
   },
@@ -60,13 +68,13 @@
           "query": "*",
           "pinned": true,
           "history": [
+            "",
             "_type:HttpAccess",
             "*",
             "_type:Syslog",
             "facility:*",
             "facility:10",
             "method:POST",
-            "",
             "severity:6",
             "message:session",
             "message:pam_unix"
@@ -92,7 +100,7 @@
             "7d",
             "30d"
           ],
-          "timespan": "6h",
+          "timespan": "7d",
           "timefield": "timestamp",
           "timeformat": "",
           "refresh": {
@@ -113,7 +121,7 @@
       "collapsable": true,
       "panels": [
         {
-          "span": 7,
+          "span": 12,
           "editable": true,
           "type": "histogram",
           "loadingEditor": false,
@@ -127,8 +135,8 @@
           },
           "value_field": null,
           "auto_int": true,
-          "resolution": 100,
-          "interval": "5m",
+          "resolution": 50,
+          "interval": "3h",
           "intervals": [
             "auto",
             "1s",
@@ -144,8 +152,8 @@
             "1M",
             "1y"
           ],
-          "fill": 0,
-          "linewidth": 3,
+          "fill": 3,
+          "linewidth": 1,
           "timezone": "browser",
           "spyable": true,
           "zoomlinks": true,
@@ -164,36 +172,6 @@
             "query_as_alias": false
           },
           "title": "time distribution"
-        },
-        {
-          "error": false,
-          "span": 5,
-          "editable": true,
-          "type": "terms",
-          "loadingEditor": false,
-          "queries": {
-            "mode": "all",
-            "ids": [
-              1
-            ]
-          },
-          "field": "hostname",
-          "exclude": [],
-          "missing": true,
-          "other": true,
-          "size": 5,
-          "order": "count",
-          "style": {
-            "font-size": "10pt"
-          },
-          "donut": false,
-          "tilt": false,
-          "labels": true,
-          "arrangement": "horizontal",
-          "chart": "bar",
-          "counter_pos": "below",
-          "spyable": true,
-          "title": "by host"
         }
       ]
     },
@@ -206,15 +184,119 @@
       "panels": [
         {
           "error": false,
-          "span": 3,
+          "span": 4,
           "editable": true,
-          "type": "filtering",
+          "type": "column",
           "loadingEditor": false,
-          "title": "Filters"
+          "panels": [
+            {
+              "title": "Active Filters",
+              "loading": false,
+              "error": false,
+              "sizeable": false,
+              "span": 12,
+              "height": "150px",
+              "editable": true,
+              "type": "filtering",
+              "draggable": false
+            },
+            {
+              "type": "terms",
+              "chart": "table",
+              "field": "hostname",
+              "size": 5,
+              "order": "count",
+              "queries": {
+                "mode": "all",
+                "ids": [
+                  1
+                ]
+              },
+              "exclude": [],
+              "missing": true,
+              "other": true,
+              "style": {
+                "font-size": "10pt"
+              },
+              "donut": false,
+              "tilt": false,
+              "labels": true,
+              "arrangement": "horizontal",
+              "counter_pos": "above",
+              "spyable": true,
+              "title": "hostname"
+            },
+            {
+              "loading": false,
+              "error": false,
+              "sizeable": false,
+              "span": 12,
+              "height": "150px",
+              "editable": true,
+              "type": "terms",
+              "draggable": false,
+              "field": "status",
+              "order": "count",
+              "chart": "table",
+              "queries": {
+                "mode": "all",
+                "ids": [
+                  1
+                ]
+              },
+              "exclude": [],
+              "missing": false,
+              "other": true,
+              "size": 10,
+              "style": {
+                "font-size": "10pt"
+              },
+              "donut": false,
+              "tilt": false,
+              "labels": true,
+              "arrangement": "horizontal",
+              "counter_pos": "above",
+              "spyable": true,
+              "title": "status code"
+            },
+            {
+              "loading": false,
+              "error": false,
+              "sizeable": false,
+              "span": 12,
+              "height": "150px",
+              "editable": true,
+              "type": "terms",
+              "draggable": false,
+              "field": "vhost",
+              "chart": "table",
+              "other": true,
+              "order": "count",
+              "queries": {
+                "mode": "all",
+                "ids": [
+                  1
+                ]
+              },
+              "exclude": [],
+              "missing": true,
+              "size": 10,
+              "style": {
+                "font-size": "10pt"
+              },
+              "donut": false,
+              "tilt": false,
+              "labels": true,
+              "arrangement": "horizontal",
+              "counter_pos": "above",
+              "spyable": true
+            }
+          ],
+          "title": ""
         },
         {
           "error": false,
-          "span": 9,
+          "span": 8,
           "editable": true,
           "type": "table",
           "loadingEditor": false,
