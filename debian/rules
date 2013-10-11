@@ -15,4 +15,4 @@ get-orig-source:
 	tar caf $(CURDIR)/../$(PKG_NAME)_$(VERSION_NATIVE).orig.tar.gz --exclude .git --exclude scripts/shakespeare.json -C $(CURDIR)/.. $$(basename $(CURDIR))
 
 override_dh_builddeb:
-	dh_builddeb --destdir .
+	dh_builddeb --destdir=.
