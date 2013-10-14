@@ -236,6 +236,12 @@ function (angular, app, _, kbn, moment) {
               _source : kbn.flatten_json(hit._source),
               highlight : kbn.flatten_json(hit.highlight||{})
             };
+
+            if (_h.kibana._source.timestamp) {
+                var date = moment(_h.kibana._source.timestamp);
+                _h.kibana._source.timestamp = date.format() +" ("+ date.fromNow() +")";
+            }
+
             return _h;
           }));
 
@@ -311,6 +317,7 @@ function (angular, app, _, kbn, moment) {
 
 
   });
+
 
   // This also escapes some xml sequences
   module.filter('tableHighlight', function() {
