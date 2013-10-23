@@ -239,7 +239,7 @@ function (angular, app, _, kbn, moment) {
 
             if (_h.kibana._source.timestamp) {
                 var date = moment(_h.kibana._source.timestamp);
-                _h.kibana._source.timestamp = date.format() +" ("+ date.fromNow() +")";
+                _h.kibana._source.timestamp = date.format("DD/MM/YYYY HH:MM:SS");
             }
 
             return _h;
