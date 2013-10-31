@@ -239,7 +239,7 @@ function (angular, app, _, kbn, moment) {
 
             if (_h.kibana._source.timestamp) {
                 var date = moment(_h.kibana._source.timestamp);
-                _h.kibana._source.timestamp = date.format("DD/MM/YYYY HH:MM:SS");
+                _h.kibana._source.timestamp = date.format();
             }
 
             return _h;
@@ -386,7 +386,7 @@ function (angular, app, _, kbn, moment) {
       ) {
         type = fields.mapping[event._index][event._type][field]['type'];
         if(type === 'date' && scope.panel.normTimes) {
-          return moment(text).format('YYYY-MM-DD HH:mm:ss');
+          return moment(text).format();
         }
       }
       return text;
