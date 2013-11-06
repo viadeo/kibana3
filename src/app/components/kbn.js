@@ -1,5 +1,5 @@
-define(['jquery', 'underscore'],
-function($, _) {
+define(['jquery','underscore','moment','chromath'],
+function($, _, moment) {
   'use strict';
 
   var kbn = {};
@@ -13,14 +13,10 @@ function($, _) {
     return field_array.sort();
   };
 
-  kbn.get_all_fields = function(data) {
-    var fields = [];
-    _.each(data,function(hit) {
-      fields = _.uniq(fields.concat(_.keys(hit)));
-    });
-    // Remove stupid angular key
-    fields = _.without(fields,'$$hashKey');
-    return fields;
+  kbn.get_all_fields = function(data,flat) {
+    return _.uniq(_.without(_.reduce(data,function(memo,hit) {
+      return flat ? memo.concat(_.keys(kbn.flatten_json(hit._source))) : memo.concat(_.keys(hit._source));
+    },[]),'$$hashkey'));
   };
 
   kbn.has_field = function(obj,field) {
@@ -41,7 +37,7 @@ function($, _) {
       }
     });
     var counts = _.countBy(_.without(field_array,field),function(field){return field;});
-    return counts;
+    return _.map(counts, function(num, key){return {name:key,count:num};});
   };
 
   kbn.recurse_field_dots = function(object,field) {
@@ -247,6 +243,145 @@ function($, _) {
     return new Date(new Date().getTime() - (kbn.interval_to_ms(string)));
   };
 
+  /* This is a simplified version of elasticsearch's date parser */
+  kbn.parseDate = function(text) {
+    if(_.isDate(text)) {
+      return text;
+    }
+    var time,
+      mathString = "",
+      index,
+      parseString;
+    if (text.substring(0,3) === "now") {
+      time = new Date();
+      mathString = text.substring("now".length);
+    } else {
+      index = text.indexOf("||");
+      parseString;
+      if (index === -1) {
+        parseString = text;
+        mathString = ""; // nothing else
+      } else {
+        parseString = text.substring(0, index);
+        mathString = text.substring(index + 2);
+      }
+      // We're going to just require ISO8601 timestamps, k?
+      time = new Date(parseString);
+    }
+
+    if (!mathString.length) {
+      return time;
+    }
+
+    //return [time,parseString,mathString];
+    return kbn.parseDateMath(mathString, time);
+  };
+
+  kbn.parseDateMath = function(mathString, time, roundUp) {
+    var dateTime = moment(time);
+    for (var i = 0; i < mathString.length; ) {
+      var c = mathString.charAt(i++),
+        type,
+        num,
+        unit;
+      if (c === '/') {
+        type = 0;
+      } else if (c === '+') {
+        type = 1;
+      } else if (c === '-') {
+        type = 2;
+      } else {
+        return false;
+      }
+
+      if (isNaN(mathString.charAt(i))) {
+        num = 1;
+      } else {
+        var numFrom = i;
+        while (!isNaN(mathString.charAt(i))) {
+          i++;
+        }
+        num = parseInt(mathString.substring(numFrom, i),10);
+      }
+      if (type === 0) {
+        // rounding is only allowed on whole numbers
+        if (num !== 1) {
+          return false;
+        }
+      }
+      unit = mathString.charAt(i++);
+      switch (unit) {
+      case 'y':
+        if (type === 0) {
+          roundUp ? dateTime.endOf('year') : dateTime.startOf('year');
+        } else if (type === 1) {
+          dateTime.add('years',num);
+        } else if (type === 2) {
+          dateTime.subtract('years',num);
+        }
+        break;
+      case 'M':
+        if (type === 0) {
+          roundUp ? dateTime.endOf('month') : dateTime.startOf('month');
+        } else if (type === 1) {
+          dateTime.add('months',num);
+        } else if (type === 2) {
+          dateTime.subtract('months',num);
+        }
+        break;
+      case 'w':
+        if (type === 0) {
+          roundUp ? dateTime.endOf('week') : dateTime.startOf('week');
+        } else if (type === 1) {
+          dateTime.add('weeks',num);
+        } else if (type === 2) {
+          dateTime.subtract('weeks',num);
+        }
+        break;
+      case 'd':
+        if (type === 0) {
+          roundUp ? dateTime.endOf('day') : dateTime.startOf('day');
+        } else if (type === 1) {
+          dateTime.add('days',num);
+        } else if (type === 2) {
+          dateTime.subtract('days',num);
+        }
+        break;
+      case 'h':
+      case 'H':
+        if (type === 0) {
+          roundUp ? dateTime.endOf('hour') : dateTime.startOf('hour');
+        } else if (type === 1) {
+          dateTime.add('hours',num);
+        } else if (type === 2) {
+          dateTime.subtract('hours',num);
+        }
+        break;
+      case 'm':
+        if (type === 0) {
+          roundUp ? dateTime.endOf('minute') : dateTime.startOf('minute');
+        } else if (type === 1) {
+          dateTime.add('minutes',num);
+        } else if (type === 2) {
+          dateTime.subtract('minutes',num);
+        }
+        break;
+      case 's':
+        if (type === 0) {
+          roundUp ? dateTime.endOf('second') : dateTime.startOf('second');
+        } else if (type === 1) {
+          dateTime.add('seconds',num);
+        } else if (type === 2) {
+          dateTime.subtract('seconds',num);
+        }
+        break;
+      default:
+        return false;
+      }
+    }
+    return dateTime.toDate();
+  };
+
   // LOL. hahahahaha. DIE.
   kbn.flatten_json = function(object,root,array) {
     if (typeof array === 'undefined') {
@@ -326,6 +461,22 @@ function($, _) {
         'color:' + color,
         'font-size:' + diameter + 'px',
       ].join(';') + '"></div>';
+  };
+
+  kbn.colorSteps = function(col,steps) {
+
+    var _d = steps > 5 ? 1.6/steps : 0.25, // distance between steps
+      _p = []; // adjustment percentage
+
+    // Create a range of numbers between -0.8 and 0.8
+    for(var i = 1; i<steps+1; i+=1) {
+      _p.push(i%2 ? ((i-1)*_d*-1)/2 : i*_d/2);
+    }
+
+    // Create the color range
+    return _.map(_p.sort(function(a,b){return a-b;}),function(v) {
+      return v<0 ? Chromath.darken(col,v*-1).toString() : Chromath.lighten(col,v).toString();
+    });
   };
 
   return kbn;
