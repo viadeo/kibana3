@@ -10,6 +10,7 @@
     "url": "http://github.com/elasticsearch/kibana.git"
   },
   "devDependencies": {
+    "gifsicle": "0.1.3",
     "rjs-build-analysis": "0.0.3",
     "grunt": "~0.4.0",
     "grunt-s3": "~0.2.0-alpha.2",
