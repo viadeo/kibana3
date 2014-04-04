@@ -1,17 +1,22 @@
-/*
+/** @scratch /panels/5
+ *
+ * include::panels/trends.asciidoc[]
+ */
 
-  ## Trends
-
-  ### Parameters
-  * style :: A hash of css styles
-  * arrangement :: How should I arrange the query results? 'horizontal' or 'vertical'
-  * ago :: Date math formatted time to look back
-
-*/
+/** @scratch /panels/trends/0
+ *
+ * == trends
+ * Status: *Beta*
+ *
+ * A stock-ticker style representation of how queries are moving over time. For example, if the
+ * time is 1:10pm, your time picker was set to "Last 10m", and the "Time Ago" parameter was set to
+ * "1h", the panel would show how much the query results have changed since 12:00-12:10pm
+ *
+ */
 define([
   'angular',
   'app',
-  'underscore',
+  'lodash',
   'kbn'
 ],
 function (angular, app, _, kbn) {
@@ -43,14 +48,34 @@ function (angular, app, _, kbn) {
 
     // Set and populate defaults
     var _d = {
+      /** @scratch /panels/trends/5
+       *
+       * === Parameters
+       *
+       * ago:: A date math formatted string describing the relative time period to compare the
+       * queries to.
+       */
+      ago     : '1d',
+      /** @scratch /panels/trends/5
+       * arrangement:: `horizontal' or `vertical'
+       */
+      arrangement : 'vertical',
+      /** @scratch /panels/trends/5
+       * spyable:: Set to false to disable the inspect icon
+       */
+      spyable: true,
+      /** @scratch /panels/trends/5
+       *
+       * ==== Queries
+       * queries object:: This object describes the queries to use on this panel.
+       * queries.mode::: Of the queries available, which to use. Options: +all, pinned, unpinned, selected+
+       * queries.ids::: In +selected+ mode, which query ids are selected.
+       */
       queries     : {
         mode        : 'all',
         ids         : []
       },
       style   : { "font-size": '14pt'},
-      ago     : '1d',
-      arrangement : 'vertical',
-      spyable: true
     };
     _.defaults($scope.panel,_d);
 
@@ -85,11 +110,13 @@ function (angular, app, _, kbn) {
         timeField = timeField[0];
       }
 
-      // This logic can be simplifie greatly with the new kbn.parseDate
+      // This logic can be simplified greatly with the new kbn.parseDate
       $scope.time = filterSrv.timeRange('last');
+
+
       $scope.old_time = {
-        from : new Date($scope.time.from.getTime() - kbn.interval_to_ms($scope.panel.ago)),
-        to   : new Date($scope.time.to.getTime() - kbn.interval_to_ms($scope.panel.ago))
+        from : new Date($scope.time.from.getTime() - kbn.interval_to_ms($scope.panel.ago)).valueOf(),
+        to   : new Date($scope.time.to.getTime() - kbn.interval_to_ms($scope.panel.ago)).valueOf()
       };
 
       var _segment = _.isUndefined(segment) ? 0 : segment;
@@ -103,11 +130,7 @@ function (angular, app, _, kbn) {
       _.each(queries, function(query) {
         var q = $scope.ejs.FilteredQuery(
           querySrv.toEjsObj(query),
-          filterSrv.getBoolFilter(_ids_without_time).must(
-            $scope.ejs.RangeFilter(timeField)
-            .from($scope.time.from)
-            .to($scope.time.to)
-          ));
+          filterSrv.getBoolFilter(filterSrv.ids()));
 
         request = request
           .facet($scope.ejs.QueryFacet(query.id)

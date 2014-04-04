@@ -6,7 +6,7 @@
 define([
   'angular',
   'app',
-  'underscore'
+  'lodash'
 ],
 function (angular, app, _) {
   'use strict';
@@ -27,6 +27,8 @@ function (angular, app, _) {
     };
     _.defaults($scope.panel,_d);
 
+    $scope.dashboard = dashboard;
+
     $scope.$on('filter', function() {
       $scope.row.notice = true;
     });
@@ -41,7 +43,7 @@ function (angular, app, _) {
 
     // This function should be moved to the service
     $scope.toggle = function(id) {
-      filterSrv.list[id].active = !filterSrv.list[id].active;
+      dashboard.current.services.filter.list[id].active = !dashboard.current.services.filter.list[id].active;
       dashboard.refresh();
     };
 
@@ -65,6 +67,24 @@ function (angular, app, _) {
 
     $scope.show_key = function(key) {
       return !_.contains(['type','id','alias','mandate','active','editing'],key);
+    };
+
+    $scope.getFilterClass = function(filter) {
+      if(filter.active !== true) {
+        return 'muted';
+      } else {
+        switch (filter.mandate)
+        {
+        case 'must':
+          return 'text-success';
+        case 'mustNot':
+          return 'text-error';
+        case 'either':
+          return 'text-warning';
+        default:
+          return 'text-info';
+        }
+      }
     };
 
     $scope.isEditable = function(filter) {

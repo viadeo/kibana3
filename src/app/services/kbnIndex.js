@@ -1,6 +1,6 @@
 define([
   'angular',
-  'underscore',
+  'lodash',
   'config',
   'moment'
 ],
@@ -9,41 +9,53 @@ function (angular, _, config, moment) {
 
   var module = angular.module('kibana.services');
 
-  module.service('kbnIndex', function($http, alertSrv) {
+  module.service('kbnIndex', function($http, alertSrv, ejsResource) {
     // returns a promise containing an array of all indices matching the index
     // pattern that exist in a given range
     this.indices = function(from,to,pattern,interval) {
       var possible = [];
-      _.each(expand_range(fake_utc(from),fake_utc(to),interval),function(d){
-        possible.push(d.format(pattern));
+      _.each(expand_range(from,to,interval),function(d){
+        possible.push(d.utc().format(pattern));
       });
 
-      return all_indices().then(function(p) {
-        var indices = _.intersection(possible,p);
+      return resolve_indices(possible).then(function(p) {
+        // an extra intersection
+        var indices = _.uniq(_.flatten(_.map(possible,function(possibleIndex) {
+          return _.intersection(possibleIndex.split(','),p);
+        })));
         indices.reverse();
         return indices;
       });
     };
 
+    var ejs = ejsResource(config.elasticsearch);
+
+
     // returns a promise containing an array of all indices in an elasticsearch
     // cluster
-    function all_indices() {
-      var something = $http({
-        url: config.elasticsearch + "/_aliases",
-        method: "GET"
-      }).error(function(data, status) {
-        if(status === 0) {
-          alertSrv.set('Error',"Could not contact Elasticsearch at "+config.elasticsearch+
-            ". Please ensure that Elasticsearch is reachable from your system." ,'error');
-        } else {
-          alertSrv.set('Error',"Could not reach "+config.elasticsearch+"/_aliases. If you"+
-          " are using a proxy, ensure it is configured correctly",'error');
-        }
-      });
+    function resolve_indices(indices) {
+      var something;
+      indices = _.uniq(_.map(indices,  encodeURIComponent));
+
+      something = ejs.client.get("/" + indices.join(",") + "/_aliases?ignore_missing=true",
+        undefined, undefined, function (data, p) {
+          if (p === 404) {
+            return [];
+          }
+          else if(p === 0) {
+            alertSrv.set('Error',"Could not contact Elasticsearch at "+ejs.config.server+
+              ". Please ensure that Elasticsearch is reachable from your system." ,'error');
+          } else {
+            alertSrv.set('Error',"Could not reach "+ejs.config.server+"/_aliases. If you"+
+              " are using a proxy, ensure it is configured correctly",'error');
+          }
+          return [];
+        });
 
       return something.then(function(p) {
+
         var indices = [];
-        _.each(p.data, function(v,k) {
+        _.each(p, function(v,k) {
           indices.push(k);
           // Also add the aliases. Could be expensive on systems with a lot of them
           _.each(v.aliases, function(v, k) {
@@ -54,6 +66,7 @@ function (angular, _, config, moment) {
       });
     }
 
+    /*
     // this is stupid, but there is otherwise no good way to ensure that when
     // I extract the date from an object that I get the UTC date. Stupid js.
     // I die a little inside every time I call this function.
@@ -63,6 +76,7 @@ function (angular, _, config, moment) {
       date = moment(date).clone().toDate();
       return moment(new Date(date.getTime() + date.getTimezoneOffset() * 60000));
     }
+    */
 
     // Create an array of date objects by a given interval
     function expand_range(start, end, interval) {
