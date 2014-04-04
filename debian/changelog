@@ -1,0 +1,5 @@
+kibana3 ({{VERSION}}-1) unstable; urgency=low
+
+  * bugfix
+
+ -- Rashid Khan <rashidkpc@github.com>  Tue, 18 Jun 2013 14:58:51 +0200
